@@ -13,3 +13,5 @@ Need 64-bit python 3.8 and cmake via Visual Studio C++ installed for face_recong
 Then run 'pip3 install face_recognition'.
 
 Face Recognition docs: https://face-recognition.readthedocs.io/en/latest/index.htmldgfdg
+
+A file names "server.json" should be included in root that contains IP address and port of server (I did it like this so I can have multiple computers, some on wifi/some on ethernet, connected to server).

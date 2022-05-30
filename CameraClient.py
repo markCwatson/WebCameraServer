@@ -4,6 +4,7 @@ import threading
 import queue
 import socket
 import pickle
+import json
 
 class CameraClient(object):
 
@@ -20,16 +21,23 @@ class CameraClient(object):
 
         self.HEADER_SIZE = 10
         self.FORMAT = "utf-8"
-        self.PORT = 5050
-        self.SERVER = socket.gethostbyname(socket.gethostname())
-        self.ADDR = (self.SERVER, self.PORT)
 
+        with open('server.json', 'r') as json_file:
+            server_data = json.load(json_file)
+
+        self.PORT = server_data['port']
+        self.SERVER = server_data['ip']
+        # or for loaclhost connection 
+        # self.SERVER = socket.gethostbyname(socket.gethostname())
+    
+        self.ADDR = (self.SERVER, self.PORT)
+    
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client.connect(self.ADDR)
 
     def cameraThread(self, frame, faces):
         
-        print("[CAMERA_CLIENT] Running clientThread")
+        print("[CAMERA_CLIENT] Face detected: sending image.")
         
         message = pickle.dumps(frame)
         message = bytes(f'{len(message):<{self.HEADER_SIZE}}', self.FORMAT) + message

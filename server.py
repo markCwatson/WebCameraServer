@@ -6,6 +6,7 @@ import cv2
 import datetime
 import face_recognition as fr
 import os
+import json
 
 class Server(object):
 
@@ -15,8 +16,13 @@ class Server(object):
         self.MESSAGE_PACKET_SIZE = 1024
         self.FORMAT = "utf-8"
 
-        self.PORT = 5050
-        self.SERVER = socket.gethostbyname(socket.gethostname())
+        with open('server.json', 'r') as json_file:
+            server_data = json.load(json_file)
+
+        self.PORT = server_data['port']
+        self.SERVER = server_data['ip']
+        # or for loaclhost connection
+        # self.SERVER = socket.gethostbyname(socket.gethostname())
         self.ADDR = (self.SERVER, self.PORT)
 
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -118,10 +124,10 @@ class Server(object):
                 bottom_right = (face_location[1], face_location[2]+22)
                 cv2.rectangle(image, top_left, bottom_right, color, cv2.FILLED)
                 cv2.putText(image, match, (face_location[3]+10, face_location[2]+15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                cv2.imwrite(f'images/{file}-{match}.jpg', image)
             else:
                 print(f"[SERVER] No match found.")
 
-        cv2.imwrite(f'images/{file}.jpg', image)
         cv2.imshow(file, image)
         cv2.waitKey(2000)
         cv2.destroyWindow(file)
