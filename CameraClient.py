@@ -10,6 +10,7 @@ class CameraClient(object):
     def __init__(self) -> None:
 
         self.cap = cv2.VideoCapture(0)
+        self.MESSAGE_PACKET_SIZE = 128
 
         if not self.cap.isOpened():
             print("[CAMERA_CLIENT] Cannot open camera")
@@ -30,14 +31,18 @@ class CameraClient(object):
         
         print("[CAMERA_CLIENT] Running clientThread")
         
-        for (x, y, width, height) in faces:
-            cv2.rectangle(frame, (x, y), (x + width, y + height), (0, 255, 0), 2)
-
         message = pickle.dumps(frame)
         message = bytes(f'{len(message):<{self.HEADER_SIZE}}', self.FORMAT) + message
         self.client.send(message)
 
+        try:
+            self.client.recv(self.MESSAGE_PACKET_SIZE)
+        except:
+            pass
+
         time.sleep(5)
+
+        # can check for "ready" message but anything coming back means the same thing at this point
 
     def handleFaceDetection(self, frame, faces):
 
@@ -47,6 +52,8 @@ class CameraClient(object):
             clientThread.start()
 
     def main(self):
+        
+        print("[CAMERA_CLIENT] Camera Client running.")
 
         while True:
             
@@ -70,6 +77,7 @@ class CameraClient(object):
 def keyboardThread(inputQueue):
 
     while (True):
+        # enter any key (and hit enter) to kill this process
         input_char = input()
         inputQueue.put(input_char)
 

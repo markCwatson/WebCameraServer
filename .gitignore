@@ -1,3 +1,5 @@
 *.jpg
 /images
 images/**
+/people
+people/**
